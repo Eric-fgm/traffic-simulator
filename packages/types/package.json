@@ -1,0 +1,8 @@
+{
+  "name": "@traffic/types",
+  "main": "./src/index.js",
+  "types": "./src/index.ts",
+  "dependencies": {
+    "typescript": "latest"
+  }
+}

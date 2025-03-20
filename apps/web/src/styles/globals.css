@@ -1,0 +1,68 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Mulish:ital,wght@0,200..1000;1,200..1000&display=swap");
+@import "tailwindcss";
+
+@theme {
+  --font-family: "Inter", "sans-serif";
+}
+
+body {
+  background-color: #00923f;
+  color: #ffffff;
+}
+
+.animate--straight {
+  animation: straight 2500ms forwards;
+}
+
+.animate--right {
+  animation: turn-right 2500ms forwards;
+}
+
+.animate--left {
+  animation: turn-left 2500ms forwards;
+}
+
+@keyframes turn-right {
+  0% {
+    transform: translate(0);
+  }
+  20% {
+    transform: translate(0, 100px);
+  }
+  40% {
+    transform: translate(0, 100px) rotate(90deg);
+  }
+  100% {
+    transform: translate(-400px, 100px) rotate(90deg);
+  }
+}
+
+@keyframes turn-left {
+  0% {
+    transform: translate(0);
+  }
+  20% {
+    transform: translate(0, 75px);
+  }
+  40% {
+    transform: translate(0, 75px) rotate(-60deg);
+  }
+  60% {
+    transform: translate(150px, 200px) rotate(-60deg);
+  }
+  80% {
+    transform: translate(150px, 200px) rotate(-90deg);
+  }
+  100% {
+    transform: translate(500px, 200px) rotate(-90deg);
+  }
+}
+
+@keyframes straight {
+  0% {
+    transform: translate(0);
+  }
+  100% {
+    transform: translate(0, 600px);
+  }
+}
