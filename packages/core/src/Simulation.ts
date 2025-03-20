@@ -20,6 +20,10 @@ export default class Simulation {
     this.commandQueue = [...input.commands];
   }
 
+  public getCommands(): SimulationCommand[] {
+    return this.commandQueue;
+  }
+
   public addCommand(command: SimulationCommand): void {
     this.commandQueue.push(command);
   }

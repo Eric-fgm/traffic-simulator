@@ -96,17 +96,17 @@ export default class TrafficController {
   ): boolean {
     const totalVehicles = this.countVehicles();
     return (
-      totalVehicles !== 0 &&
       // When traffic lights are transitioning
-      (this.trafficPhases.getTransitioningLights().length > 0 ||
+      this.trafficPhases.getTransitioningLights().length > 0 ||
+      (totalVehicles !== 0 &&
         // When there are no more vehicles
-        leftVehicles.length === 0 ||
-        remainingVehicles.length === 0 ||
-        // Based on traffic
-        this.steps >=
-          Math.ceil(
-            (remainingVehicles.length / totalVehicles) * MAX_CONTINOUS_STEPS
-          ))
+        (leftVehicles.length === 0 ||
+          remainingVehicles.length === 0 ||
+          // Based on traffic
+          this.steps >=
+            Math.ceil(
+              (remainingVehicles.length / totalVehicles) * MAX_CONTINOUS_STEPS
+            )))
     );
   }
 }

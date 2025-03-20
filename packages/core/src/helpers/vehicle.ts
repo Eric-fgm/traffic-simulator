@@ -27,7 +27,7 @@ export const hasVehicleConflit = (
   ) {
     return vehicles.some(
       (vehicle) =>
-        vehicle.origin === oppositeDirections[candidate.destination] &&
+        vehicle.origin === oppositeDirections[candidate.origin] &&
         vehicle.destination === candidate.destination
     );
   }
