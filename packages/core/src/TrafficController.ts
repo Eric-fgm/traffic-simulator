@@ -10,7 +10,13 @@ import type TrafficLight from "./TrafficLight";
  */
 export default class TrafficController {
   private readonly trafficPhases = new TrafficPhases();
-  private readonly vehiclesMap: Map<Direction, Vehicle[]> = new Map();
+  // vehicleMap based on vehicle origin
+  private readonly vehiclesMap: Record<Direction, Vehicle[]> = {
+    north: [],
+    east: [],
+    south: [],
+    west: [],
+  };
   private steps = 0;
 
   public getTrafficLights(): TrafficLight[] {
@@ -18,52 +24,52 @@ export default class TrafficController {
   }
 
   public countVehicles(): number {
-    let count = 0;
-    this.vehiclesMap.forEach((vehicles) => (count += vehicles.length));
-    return count;
+    return Object.values(this.vehiclesMap).reduce(
+      (count, vehicles) => count + vehicles.length,
+      0
+    );
   }
 
-  public getVehiclesMap(): Map<Direction, Vehicle[]> {
+  public getVehiclesMap(): Record<Direction, Vehicle[]> {
     return this.vehiclesMap;
   }
 
   public addVehicle(vehicle: Vehicle): void {
-    const { origin } = vehicle;
-    const vehiclesAtOrigin = this.vehiclesMap.get(origin) || [];
-    vehiclesAtOrigin.push(vehicle);
-    this.vehiclesMap.set(origin, vehiclesAtOrigin);
+    if (vehicle.origin === vehicle.destination) {
+      throw new Error("Turning back at the intersection is not allowed.");
+    }
+
+    this.vehiclesMap[vehicle.origin].push(vehicle);
   }
 
   public removeVehicle(vehicle: Vehicle): void {
-    const { origin } = vehicle;
-    const updatedVehicles = (this.vehiclesMap.get(origin) ?? []).filter(
+    const updatedVehicles = this.vehiclesMap[vehicle.origin].filter(
       ({ id }) => id !== vehicle.id
     );
-    this.vehiclesMap.set(origin, updatedVehicles);
+    this.vehiclesMap[vehicle.origin] = updatedVehicles;
   }
 
   // Process vehicles based on the available traffic lights and resolve conflicts
   public processVehicles() {
-    const { candidates, remaning } = this.trafficPhases
+    const { candidates, remainingVehicles } = this.trafficPhases
       .getActiveLights()
-      .reduce<{ candidates: Vehicle[]; remaning: Vehicle[] }>(
+      .reduce<{ candidates: Vehicle[]; remainingVehicles: Vehicle[] }>(
         (acc, trafficLight) => {
           // Choose candidate based on origin Direction of vehicle and active traffic light
-          const vehiclesAtOrigin =
-            this.vehiclesMap.get(trafficLight.getOrigin()) ?? [];
-          const [candidate, ...remainingVehicles] = vehiclesAtOrigin;
-          if (candidate) {
-            acc.candidates.push(candidate);
-            acc.remaning.push(...remainingVehicles);
+          const vehiclesAtOrigin = this.vehiclesMap[trafficLight.getOrigin()];
+          const remainingVehicles = vehiclesAtOrigin;
+          if (remainingVehicles.length) {
+            acc.candidates.push(remainingVehicles[0]);
+            acc.remainingVehicles.push(...remainingVehicles);
           }
           return acc;
         },
-        { candidates: [], remaning: [] }
+        { candidates: [], remainingVehicles: [] }
       );
 
     return {
       leftVehicles: this.resolveVehiclesConflict(candidates),
-      remainingVehicles: remaning,
+      remainingVehicles: remainingVehicles,
     };
   }
 
@@ -95,18 +101,25 @@ export default class TrafficController {
     remainingVehicles: Vehicle[]
   ): boolean {
     const totalVehicles = this.countVehicles();
-    return (
-      // When traffic lights are transitioning
+    const pendingVehicles = remainingVehicles.length - leftVehicles.length;
+
+    // If traffic lights are transitioning (YELLOW -> RED) or no more vehicles are pending, run the next phase
+    if (
       this.trafficPhases.getTransitioningLights().length > 0 ||
-      (totalVehicles !== 0 &&
-        // When there are no more vehicles
-        (leftVehicles.length === 0 ||
-          remainingVehicles.length === 0 ||
-          // Based on traffic
-          this.steps >=
-            Math.ceil(
-              (remainingVehicles.length / totalVehicles) * MAX_CONTINOUS_STEPS
-            )))
+      (pendingVehicles === 0 && leftVehicles.length)
+    ) {
+      return true;
+    }
+
+    // Calculate the effective number of vehicles still waiting to clear the intersection.
+    const remaningTrafficDensity = totalVehicles
+      ? pendingVehicles / totalVehicles
+      : 0;
+
+    return (
+      pendingVehicles !== totalVehicles &&
+      // Based on traffic density
+      this.steps >= Math.ceil(remaningTrafficDensity * MAX_CONTINOUS_STEPS)
     );
   }
 }

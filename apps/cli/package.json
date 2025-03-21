@@ -8,27 +8,18 @@
     "dev": "tsup --watch --onSuccess \"node dist/index.cjs\"",
     "build": "tsup",
     "check-types": "tsc --noEmit",
-    "lint": "eslint src/ --max-warnings 0",
-    "test": "jest --detectOpenHandles"
-  },
-  "jest": {
-    "preset": "@traffic/jest-presets/node"
+    "lint": "eslint src/ --max-warnings 0"
   },
   "dependencies": {
     "@traffic/core": "workspace:*"
   },
   "devDependencies": {
-    "@jest/globals": "^29.7.0",
     "@traffic/eslint-config": "workspace:*",
-    "@traffic/jest-presets": "workspace:*",
     "@traffic/typescript-config": "workspace:*",
     "@traffic/helpers": "workspace:*",
     "@traffic/types": "workspace:*",
     "@types/node": "^22.13.9",
-    "@types/supertest": "^6.0.2",
     "eslint": "^9.22.0",
-    "jest": "^29.7.0",
-    "supertest": "^7.0.0",
     "tsup": "^8.4.0",
     "typescript": "5.8.2"
   }

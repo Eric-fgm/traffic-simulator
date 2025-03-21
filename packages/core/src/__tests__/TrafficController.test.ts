@@ -36,18 +36,20 @@ describe("TrafficController", () => {
 
     const result = trafficController.processVehicles();
     expect(result.leftVehicles).toEqual([vehicle1]);
-    expect(result.remainingVehicles).toEqual([]);
+    expect(result.remainingVehicles).toEqual([vehicle1]);
   });
 
   it("should process vehicles and determine left vehicles case 2", () => {
     const vehicle1 = createMockVehicle("V1", "north");
     const vehicle2 = createMockVehicle("V2", "south", "north");
+    const vehicle3 = createMockVehicle("V3", "south", "west");
     trafficController.addVehicle(vehicle1);
     trafficController.addVehicle(vehicle2);
+    trafficController.addVehicle(vehicle3);
 
     const result = trafficController.processVehicles();
     expect(result.leftVehicles).toEqual([vehicle1, vehicle2]);
-    expect(result.remainingVehicles).toEqual([]);
+    expect(result.remainingVehicles).toEqual([vehicle1, vehicle2, vehicle3]);
   });
 
   it("should process vehicles and determine left vehicles case 3", () => {
@@ -58,7 +60,7 @@ describe("TrafficController", () => {
 
     const result = trafficController.processVehicles();
     expect(result.leftVehicles).toEqual([vehicle2]);
-    expect(result.remainingVehicles).toEqual([]);
+    expect(result.remainingVehicles).toEqual([vehicle1, vehicle2]);
   });
 
   it("should execute a simulation step and return left vehicle IDs", () => {

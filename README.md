@@ -4,7 +4,26 @@ The Traffic Simulator is an full-stack / CLI application that simulates the oper
 
 ![Client Demo App](./assets/client-app.png)
 
-### Algorithm
+## Algorithm
+
+#### Description
+
+Algorithm determines when to transition to the next phase of traffic lights in an intersection control system, by
+considering traffic density, remaining vehicles, and ongoing light transitions to decide whether to switch phases.
+
+#### Assumptions
+
+- There are conflicting traffic lights, and vehicle conflict resolution follows the right-hand rule.
+
+- We assume that everyone is in a hurry and passing through yellow lights.
+
+#### Steps
+
+- If any traffic light is currently transitioning or there are no more pending vehicles, the next phase should run, and the step count should reset.
+
+- If there are remaining vehicles waiting for the next phase and the current step count exceeds the remaining traffic density multiplied by the maximum continuous steps, the next phase should run; otherwise, increment the step count.
+
+- If there are no remaining vehicles waiting for the next phase, it should not run. Vehicles in the current phase always have the right to move.
 
 ## Technologies
 

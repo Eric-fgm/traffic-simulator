@@ -8,46 +8,81 @@ export const parseAddVehicleCommand = (
   destination: command.endRoad,
 });
 
+const oppositeDirection: Record<Direction, Direction> = {
+  north: "south",
+  south: "north",
+  west: "east",
+  east: "west",
+};
+
+const rightDirection: Record<Direction, Direction> = {
+  north: "west",
+  south: "east",
+  west: "south",
+  east: "north",
+};
+
+const straightRoutes: [Direction, Direction][] = [
+  ["north", "south"],
+  ["south", "north"],
+  ["west", "east"],
+  ["east", "west"],
+];
+
+const leftTurnRoutes: [Direction, Direction][] = [
+  ["north", "east"],
+  ["south", "west"],
+  ["west", "north"],
+  ["east", "south"],
+];
+
+const isRouteInGroup = (
+  candidate: Vehicle,
+  routeGroup: [Direction, Direction][]
+): boolean => {
+  return routeGroup.some(
+    ([origin, destination]) =>
+      candidate.origin === origin && candidate.destination === destination
+  );
+};
+
+const hasStraightRouteConflict = (
+  candidate: Vehicle,
+  otherVehicles: Vehicle[]
+): boolean => {
+  const conflictOrigin = rightDirection[candidate.origin];
+  return otherVehicles.some((vehicle) => vehicle.origin === conflictOrigin);
+};
+
+const hasLeftTurnConflict = (
+  candidate: Vehicle,
+  otherVehicles: Vehicle[]
+): boolean => {
+  const conflictOrigins = [
+    rightDirection[candidate.origin],
+    oppositeDirection[candidate.origin],
+  ];
+  return otherVehicles.some(
+    (vehicle) =>
+      conflictOrigins.includes(vehicle.origin) &&
+      !conflictOrigins.includes(vehicle.destination)
+  );
+};
+
 export const hasVehicleConflit = (
   candidate: Vehicle,
-  vehicles: Vehicle[]
+  otherVehicles: Vehicle[]
 ): boolean => {
-  const oppositeDirections: Record<Direction, Direction> = {
-    north: "south",
-    south: "north",
-    west: "east",
-    east: "west",
-  };
-
-  if (
-    (candidate.origin === "north" && candidate.destination === "west") ||
-    (candidate.origin === "south" && candidate.destination === "east") ||
-    (candidate.origin === "west" && candidate.destination === "south") ||
-    (candidate.origin === "east" && candidate.destination === "north")
-  ) {
-    return vehicles.some(
-      (vehicle) =>
-        vehicle.origin === oppositeDirections[candidate.origin] &&
-        vehicle.destination === candidate.destination
-    );
+  // If the candidate is going straight
+  if (isRouteInGroup(candidate, straightRoutes)) {
+    return hasStraightRouteConflict(candidate, otherVehicles);
   }
 
-  if (
-    (candidate.origin === "north" && candidate.destination === "east") ||
-    (candidate.origin === "south" && candidate.destination === "west") ||
-    (candidate.origin === "west" && candidate.destination === "north") ||
-    (candidate.origin === "east" && candidate.destination === "south")
-  ) {
-    return vehicles.some(
-      (vehicle) =>
-        (vehicle.destination === candidate.destination &&
-          (vehicle.origin === oppositeDirections[candidate.origin] ||
-            vehicle.origin === oppositeDirections[vehicle.destination])) ||
-        (vehicle.destination === candidate.origin &&
-          (vehicle.origin === oppositeDirections[candidate.origin] ||
-            vehicle.origin === oppositeDirections[vehicle.destination]))
-    );
+  // If the candidate is turning left, check for conflicts
+  if (isRouteInGroup(candidate, leftTurnRoutes)) {
+    return hasLeftTurnConflict(candidate, otherVehicles);
   }
 
+  // No conflicts occur when turning right
   return false;
 };

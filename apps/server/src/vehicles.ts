@@ -11,7 +11,7 @@ const vehicleApp = new Hono<AppEnv>()
       .getTrafficController()
       .getVehiclesMap();
 
-    return c.json(Object.fromEntries(vehicles));
+    return c.json(vehicles);
   })
   .post(zValidator("json", VehiclePartialSchema), async (c) => {
     const partialVehicle = c.req.valid("json");
